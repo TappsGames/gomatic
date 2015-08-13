@@ -1065,24 +1065,28 @@ class Agent:
 class HostRestClient:
     def __init__(self, host, user=None, password=None):
         self.__host = host
-        if user and password:
-            self.__auth = HTTPBasicAuth(user, password)
-        else:
-            self.__auth = None
+        self.__user = user
+        self.__password = password
 
     def __repr__(self):
-        return 'HostRestClient("%s")' % self.__host
+        return 'HostRestClient(%s, %s, %s)' % (repr(self.__host), repr(self.__user), repr(self.__password))
 
     def __path(self, path):
         return ('http://%s' % self.__host) + path
 
+    def __auth(self):
+        if self.__user and self.__password:
+            return HTTPBasicAuth(self.__user, self.__password)
+        else:
+            return None
+
     def get(self, path):
         print self.__path(path)
-        return requests.get(self.__path(path), auth=self.__auth)
+        return requests.get(self.__path(path), auth=self.__auth())
 
     def post(self, path, data):
         url = self.__path(path)
-        result = requests.post(url, data, auth=self.__auth)
+        result = requests.post(url, data, auth=self.__auth())
         if result.status_code != 200:
             try:
                 result_json = json.loads(result.text.replace("\\'", "'"))
