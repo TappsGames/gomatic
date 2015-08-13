@@ -1081,7 +1081,6 @@ class HostRestClient:
             return None
 
     def get(self, path):
-        print self.__path(path)
         return requests.get(self.__path(path), auth=self.__auth())
 
     def post(self, path, data):
