@@ -222,6 +222,13 @@ def Task(element):
         return FetchArtifactTask(element.attrib['pipeline'], element.attrib['stage'], element.attrib['job'], fetch_artifact_src_from(element), dest, runif)
     if element.tag == "rake":
         return RakeTask(element.attrib['target'])
+    if element.tag == "task":
+        pluginConfiguration = element.find('pluginConfiguration')
+        configuration = [
+            (e.find("key").text, e.find("value").text) for
+            e in element.find("configuration").findall("property")
+        ]
+        return PluginTask(TaskPluginConfiguration(pluginConfiguration.attrib["id"], pluginConfiguration.attrib["version"]), configuration)
     raise RuntimeError("Don't know task type %s" % element.tag)
 
 
@@ -234,6 +241,40 @@ class AbstractTask(CommonEqualityMixin):
 
     def runif(self):
         return self._runif
+
+
+class TaskPluginConfiguration(object):
+    def __init__(self, plugin_id, version):
+        self.plugin_id = plugin_id
+        self.version = version
+
+    def __repr__(self):
+        return 'TaskPluginConfiguration("%s", "%s")' % (self.plugin_id, self.version)
+
+
+class PluginTask(AbstractTask):
+    def __init__(self, pluginConfiguration, configuration, runif="passed"):
+        super(self.__class__, self).__init__(runif)
+        self.__pluginConfiguration = pluginConfiguration
+        self.__configuration = configuration
+
+    def __repr__(self):
+        return 'PluginTask(%s, %s, "%s")' % (self.__pluginConfiguration, self.__configuration, self._runif)
+
+    def type(self):
+        return "task"
+
+    def append_to(self, element):
+        s = '<task><pluginConfiguration id="{pluginConfiguration.plugin_id}" version="{pluginConfiguration.version}"/><configuration>'.format(
+            pluginConfiguration=self.__pluginConfiguration
+        )
+        for prop in self.__configuration:
+            s += '<property><key>{0}</key><value>{1}</value></property>'.format(*prop)
+        s += "</configuration></task>"
+
+        new_element = ET.fromstring(s)
+        Ensurance(element).ensure_child("tasks").append(new_element)
+        return Task(new_element)
 
 
 def fetch_artifact_src_from(element):
