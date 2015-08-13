@@ -8,6 +8,7 @@ from xml.dom.minidom import parseString
 from xml.sax.saxutils import escape
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 
 def prettify(xml_string):
@@ -1062,8 +1063,12 @@ class Agent:
 
 
 class HostRestClient:
-    def __init__(self, host):
+    def __init__(self, host, user=None, password=None):
         self.__host = host
+        if user and password:
+            self.__auth = HTTPBasicAuth(user, password)
+        else:
+            self.__auth = None
 
     def __repr__(self):
         return 'HostRestClient("%s")' % self.__host
@@ -1072,11 +1077,12 @@ class HostRestClient:
         return ('http://%s' % self.__host) + path
 
     def get(self, path):
-        return requests.get(self.__path(path))
+        print self.__path(path)
+        return requests.get(self.__path(path), auth=self.__auth)
 
     def post(self, path, data):
         url = self.__path(path)
-        result = requests.post(url, data)
+        result = requests.post(url, data, auth=self.__auth)
         if result.status_code != 200:
             try:
                 result_json = json.loads(result.text.replace("\\'", "'"))
@@ -1188,14 +1194,19 @@ if __name__ == '__main__':
                                                  'Run python -m gomatic.go_cd_configurator to reverse engineer code to configure an existing pipeline.')
     parser.add_argument('-s', '--server', help='the go server (e.g. "localhost:8153" or "my.gocd.com")')
     parser.add_argument('-p', '--pipeline', help='the name of the pipeline to reverse-engineer the config for')
+    parser.add_argument('-u', '--username', help='Username to login to the go server with')
+    parser.add_argument('--password', help='Password to login to the go server with')
 
     args = parser.parse_args()
+
+    if len([x for x in (args.username, args.password) if x is not None]) == 1:
+        parser.error('--username and --password must be given together')
 
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
 
-    go_server = GoCdConfigurator(HostRestClient(args.server))
+    go_server = GoCdConfigurator(HostRestClient(args.server, args.username, args.password))
 
     matching_pipelines = [p for p in go_server.pipelines() if p.name() == args.pipeline]
     if len(matching_pipelines) != 1:
