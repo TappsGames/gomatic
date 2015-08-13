@@ -1119,7 +1119,7 @@ class GoCdConfigurator:
 
     def __current_config_response(self):
         response = self.__host_rest_client.get("/go/admin/restful/configuration/file/GET/xml")
-        return response.text, response.headers['x-cruise-config-md5']
+        return response.text.encode("UTF-8"), response.headers['x-cruise-config-md5']
 
     def reorder_elements_to_please_go(self):
         move_all_to_end(self.__xml_root, 'pipelines')
