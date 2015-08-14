@@ -810,9 +810,9 @@ class Pipeline(CommonEqualityMixin):
             return '\\\n\t.' + s
 
         result = (
-                     then('ensure_pipeline_group("%s")') +
-                     then('ensure_replacement_of_pipeline("%s")')
-                 ) % (self.parent.name(), self.name())
+            then('ensure_pipeline_group("%s")') +
+            then('ensure_replacement_of_pipeline("%s")')
+        ) % (self.parent.name(), self.name())
 
         if self.has_timer():
             result += then('set_timer("%s")' % self.timer())
