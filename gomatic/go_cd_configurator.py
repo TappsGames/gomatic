@@ -819,6 +819,9 @@ class Pipeline(CommonEqualityMixin):
             else:
                 result += then('set_label_template("%s")' % self.label_template())
 
+        if self.has_template():
+            result += then('set_template(%s)' % repr(self.template()))
+
         if self.has_automatic_pipeline_locking():
             result += then('set_automatic_pipeline_locking()')
 
@@ -864,6 +867,19 @@ class Pipeline(CommonEqualityMixin):
 
     def set_default_label_template(self):
         return self.set_label_template(DEFAULT_LABEL_TEMPLATE)
+
+    def has_template(self):
+        return 'template' in self.element.attrib
+
+    def template(self):
+        if self.has_template():
+            return self.element.attrib['template']
+        else:
+            raise RuntimeError("Does not have a template")
+
+    def set_template(self, template):
+        self.element.attrib['template'] = template
+        return self
 
     def materials(self):
         return [Materials(element) for element in PossiblyMissingElement(self.element).possibly_missing_child('materials').iterator()]
