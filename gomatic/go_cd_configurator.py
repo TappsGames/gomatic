@@ -553,6 +553,10 @@ class Job(CommonEqualityMixin):
         ThingWithEnvironmentVariables(self.__element).ensure_environment_variables(environment_variables)
         return self
 
+    def ensure_encrypted_environment_variables(self, environment_variables):
+        ThingWithEnvironmentVariables(self.__element).ensure_encrypted_environment_variables(environment_variables)
+        return self
+
     def without_any_environment_variables(self):
         ThingWithEnvironmentVariables(self.__element).remove_all()
         return self
