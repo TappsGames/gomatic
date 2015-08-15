@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import argparse
 import sys
 import subprocess
+import copy
 from xml.dom.minidom import parseString
 from xml.sax.saxutils import escape
 
@@ -802,6 +803,11 @@ class Pipeline(CommonEqualityMixin):
         self.parent = parent
         self.element = element
 
+    def copy(self, new_name):
+        copied_element = copy.deepcopy(self.element)
+        copied_element.attrib['name'] = new_name
+        return Pipeline(copied_element, self.parent)
+
     def name(self):
         return self.element.attrib['name']
 
@@ -1065,6 +1071,10 @@ class PipelineGroup(CommonEqualityMixin):
         pipeline = self.ensure_pipeline(name)
         pipeline.make_empty()
         return pipeline
+
+    def add_pipeline(self, pipeline):
+        self.element.append(pipeline.element)
+        return self
 
 
 class Agent:
