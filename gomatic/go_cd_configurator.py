@@ -777,7 +777,7 @@ class GitMaterial(CommonEqualityMixin):
             branch_part = ' branch="%s"' % self.__branch
         dest_part = ""
         if self.__dest is not None:
-            dest_part = ' dest=""' % self.__dest
+            dest_part = ' dest="%s"' % self.__dest
         material_name_part = ""
         if self.__material_name is not None:
             material_name_part = ' materialName="%s"' % self.__material_name
