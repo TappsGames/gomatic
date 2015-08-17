@@ -482,6 +482,10 @@ class Job(CommonEqualityMixin):
     def __repr__(self):
         return "Job('%s', %s)" % (self.name(), self.tasks())
 
+    def copy(self):
+        copied_element = copy.deepcopy(self.__element)
+        return Job(copied_element)
+
     def name(self):
         return self.__element.attrib['name']
 
@@ -599,6 +603,10 @@ class Job(CommonEqualityMixin):
             result += "\njob.add_task(%s)" % task
 
         return result
+
+    def append_to(self, stage):
+        stage.element.append(self.__element)
+        return self
 
 
 class Stage(CommonEqualityMixin):
