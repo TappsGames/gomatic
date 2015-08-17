@@ -605,7 +605,7 @@ class Job(CommonEqualityMixin):
         return result
 
     def append_to(self, stage):
-        stage.element.append(self.__element)
+        Ensurance(stage.element).ensure_child("jobs")._element.append(self.__element)
         return self
 
 
