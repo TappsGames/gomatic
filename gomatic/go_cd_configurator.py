@@ -813,6 +813,9 @@ class PipelineMaterial(CommonEqualityMixin):
     def material_name(self):
         return self.__material_name
 
+    def pipeline_name(self):
+        return self.__pipeline_name
+
     def append_to(self, element):
         if self.__material_name is None:
             new_element = ET.fromstring('<pipeline pipelineName="%s" stageName="%s" />' % (self.__pipeline_name, self.__stage_name))
