@@ -1025,6 +1025,7 @@ class Pipeline(CommonEqualityMixin):
 
     def reorder_elements_to_please_go(self):
         move_all_to_end(self.element, "params")
+        move_all_to_end(self.element, "trackingtool")
         move_all_to_end(self.element, "timer")
         move_all_to_end(self.element, "environmentvariables")
         move_all_to_end(self.element, "materials")
